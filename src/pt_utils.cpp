@@ -12,13 +12,13 @@ struct Array
 
     T& operator [] (int idx) { 
 #ifdef CHECK_BOUNDS
-        if(idx >= size) { fprintf(stderr, "Index: %i, Larger then Array_Size: %i", idx, size); }
+        if(idx >= size) { fprintf(stderr, "Index: %i, Larger then Array_Size: %i\n", idx, size); }
         return data[idx];
 #endif
     }
     void push_back(T value) {
 #ifdef CHECK_BOUNDS
-        if(ix_ >= size) { fprintf(stderr, "Index out of range: %zu", ix_); }
+        if(ix_ >= size) { fprintf(stderr, "Index out of range: %i\n", ix_); }
 #endif
         data[ix_++] = value;
     }

@@ -4,7 +4,8 @@ LNK_FLAGS =
 INCLUDE = -Iexternal
 LIBS = -lpthread
 TARGET = xilo
-MAIN = src/xilo.cpp
+CXX_FILES = $(wildcard src/*.cpp)
+ENTRY = src/xilo.cpp
 
-${TARGET}: ${MAIN}
-	${CXX} ${CXX_FLAGS} -o $@ $^ ${CXX_FLAGS} ${LNK_FLAGS} ${INCLUDE} ${LIBS}
+${TARGET}: ${CXX_FILES}
+	${CXX} ${CXX_FLAGS} -o $@ ${ENTRY} ${LNK_FLAGS} ${INCLUDE} ${LIBS}
