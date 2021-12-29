@@ -20,7 +20,7 @@ bool sphere_hit(Ray& ray, Sphere* sphere, Vec2 t_range, Hit_Info& info)
     info.t = t;
     info.p = p;
     info.normal = (p - sphere->pos) * (1.0F / sphere->rad);
-    info.color = sphere->color;
+    info.material = sphere->material;
 
     return true;
 }
@@ -51,6 +51,6 @@ bool quadxz_hit(Ray& ray, Quad* quad, Vec2 t_range, Hit_Info& info)
     info.p = p;
     if(n_dot_d > 0) { normal = -normal; }
     info.normal = normal;
-    info.color = quad->color;
+    info.material = quad->material;
     return true;
 }
