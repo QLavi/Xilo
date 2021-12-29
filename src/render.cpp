@@ -3,6 +3,7 @@ bool scene_hit(Ray& ray, Vec2 t_range, Hit_Info& info, Render_Context* render_ct
     bool hit_anything = false;
     Array<Sphere> spheres = render_ctx->spheres;
     Array<Quad> quads = render_ctx->quads;
+    Array<Array<Triangle>> meshes = render_ctx->meshes;
 
     for(int x = 0; x < spheres.size; x++)
     {
@@ -15,6 +16,16 @@ bool scene_hit(Ray& ray, Vec2 t_range, Hit_Info& info, Render_Context* render_ct
         bool hit = quadxz_hit(ray, &quads[x], t_range, info);
         if(hit) { t_range.max = info.t; hit_anything = true; }
     }
+
+    for(int x = 0; x < meshes.size; x++)
+    {
+        for(int y = 0; y < meshes[x].size; y++)
+        {
+            bool hit = triangle_hit(ray, &meshes[x].data[y], t_range, info);
+            if(hit) { t_range.max = info.t; hit_anything = true; }
+        }
+    }
+
     return hit_anything;
 }
 

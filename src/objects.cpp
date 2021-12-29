@@ -54,3 +54,35 @@ bool quadxz_hit(Ray& ray, Quad* quad, Vec2 t_range, Hit_Info& info)
     info.material = quad->material;
     return true;
 }
+
+const float EPSILON = 0.0001;
+bool triangle_hit(Ray& ray, Triangle* triangle, Vec2 t_range, Hit_Info& info)
+{
+    Vec3 edge1 = triangle->v1 - triangle->v0;
+    Vec3 edge2 = triangle->v2 - triangle->v0;
+    Vec3 vec_p = cross(ray.rd, edge2);
+
+    float det = dot(edge1, vec_p);
+    if(det < EPSILON) { return false; }
+
+    Vec3 vec_t = ray.ro - triangle->v0;
+    float u = dot(vec_t, vec_p);
+    if(u < 0 || u > det) { return false; }
+
+    Vec3 vec_q = cross(vec_t, edge1);
+    float v = dot(ray.rd, vec_q);
+    if(v < 0 || u + v > det) { return false; }
+
+    float t = dot(edge2, vec_q);
+    float inv_det = 1 / det;
+    t *= inv_det;
+    u *= inv_det;
+    v *= inv_det;
+    if(t < t_range.min || t > t_range.max) { return false; }
+
+    info.t = t;
+    info.p = ray.ro + t*ray.rd;
+    info.normal = cross(edge1, edge2);
+    info.material = triangle->material;
+    return true;
+}

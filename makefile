@@ -1,5 +1,5 @@
 CXX = clang++
-CXX_FLAGS = -g
+CXX_FLAGS = -O2
 LNK_FLAGS = 
 INCLUDE = -Iexternal
 LIBS = -lpthread
