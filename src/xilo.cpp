@@ -60,11 +60,11 @@ int main()
     render_ctx->quads = quads;
 
     /* Array<Triangle> bunny = load_mesh("data/bunny.obj", 34835, 69666, &materials[1]); */
-    Array<Triangle> dragon = load_mesh("data/dragon.obj", 50000, 100000, &materials[1]);
+    Array<Triangle> model = load_mesh("data/dragon.obj", 50000, 100000, &materials[1]);
 
     Array<BVH_Node*> bvhs; bvhs.allocate(1);
     bvhs[0] = create_bvh_node();
-    build_BVH(bvhs[0], dragon.data, 0, dragon.size);
+    build_BVH(bvhs[0], model.data, 0, model.size);
     render_ctx->bvhs = bvhs;
 
 #if 1
@@ -80,7 +80,7 @@ int main()
 #endif
 
     destroy_BVHs(bvhs);
-    dragon.deallocate();
+    model.deallocate();
     materials.deallocate();
     quads.deallocate();
     MEM_FREE(render_ctx);

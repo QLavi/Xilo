@@ -1,6 +1,6 @@
 # Xilo
 
-Xilo is a Path Tracer written C++ [Mostly C Style]
+Xilo is a Path Tracer written in C++ [Mostly C Style]
 
 How to build the project:
 1. All the Rendering Configuration is inside `src/xilo.cpp`
