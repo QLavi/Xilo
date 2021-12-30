@@ -82,7 +82,10 @@ bool triangle_hit(Ray& ray, Triangle* triangle, Vec2 t_range, Hit_Info& info)
 
     info.t = t;
     info.p = ray.ro + t*ray.rd;
-    info.normal = cross(edge1, edge2);
+    Vec3 normal = cross(edge1, edge2);
+    float n_dot_d = dot(normal, ray.rd);
+    if(n_dot_d > 0) { normal = -normal; }
+    info.normal = normal;
     info.material = triangle->material;
     return true;
 }

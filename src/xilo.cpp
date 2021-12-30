@@ -54,16 +54,17 @@ int main()
     materials[2] = Material{Vec3{0.7, 0.7, 0.7}, 0, 0, 0, 1};
     materials[3] = Material{Vec3{1, 1, 1}, 4, 0, 0, 0};
 
-    Array<Quad> quads; quads.allocate(2);
+    Array<Quad> quads; quads.allocate(1);
     quads[0] = Quad {Vec2{100, 100}, Vec3{0.0, 0.0, 0.0}, &materials[2]};
-    quads[1] = Quad {Vec2{4, 2}, Vec3{0.0, 6.0, 0.0}, &materials[3]};
+    /* quads[1] = Quad {Vec2{4, 2}, Vec3{0.0, 6.0, 0.0}, &materials[3]}; */
     render_ctx->quads = quads;
 
-    Array<Triangle> bunny = load_mesh("data/bunny.obj", 34836, 69666, &materials[0]);
+    /* Array<Triangle> bunny = load_mesh("data/bunny.obj", 34835, 69666, &materials[1]); */
+    Array<Triangle> dragon = load_mesh("data/dragon.obj", 50000, 100000, &materials[1]);
 
     Array<BVH_Node*> bvhs; bvhs.allocate(1);
     bvhs[0] = create_bvh_node();
-    build_BVH(bvhs[0], bunny.data, 0, bunny.size);
+    build_BVH(bvhs[0], dragon.data, 0, dragon.size);
     render_ctx->bvhs = bvhs;
 
 #if 1
@@ -79,7 +80,7 @@ int main()
 #endif
 
     destroy_BVHs(bvhs);
-    bunny.deallocate();
+    dragon.deallocate();
     materials.deallocate();
     quads.deallocate();
     MEM_FREE(render_ctx);
