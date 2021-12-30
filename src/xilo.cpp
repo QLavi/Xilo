@@ -12,18 +12,20 @@ struct Hit_Info { float t; Vec3 p, normal; Material* material; };
 struct Sphere { float rad; Vec3 pos; Material* material; };
 struct Quad { Vec2 dim; Vec3 pos; Material* material; };
 struct Triangle { Vec3 v0, v1, v2; Material* material; };
-struct Render_Context { Array<Sphere> spheres; Array<Quad> quads; Array<Array<Triangle>> meshes;
-    Camera camera; };
+struct AABB { Vec3 min, max; };
+struct BVH_Node { Triangle* triangle; AABB bbox; BVH_Node *left, *right; };
+struct Render_Context { Array<Quad> quads; Array<BVH_Node*> bvhs; Camera camera; };
 
 const int WIDTH = 768;
 const int HEIGHT = 768;
 constexpr float ASPECT = WIDTH / float(HEIGHT);
 const int MAX_SAMPLES = 1024;
-const int MAX_LIGHT_BOUNCES = 128;
+const int MAX_LIGHT_BOUNCES = 64;
 const int TILE_SIZE = 64;
 const int THREAD_COUNT = 8;
 
 #include "objects.cpp"
+#include "bvh.cpp"
 #include "render.cpp"
 #include "task_launch.cpp"
 #include "mesh_loader.cpp"
@@ -50,34 +52,35 @@ int main()
     materials[0] = Material{Vec3{0.5, 0.7, 1.0}, 0, 0, 0, 1};
     materials[1] = Material{Vec3{0.7, 0.5, 1.0}, 0, 0, 0, 1};
     materials[2] = Material{Vec3{0.7, 0.7, 0.7}, 0, 0, 0, 1};
-    materials[3] = Material{Vec3{1, 1, 1}, 1, 0, 0, 0};
-
-    Array<Sphere> spheres; spheres.allocate(0);
-    /* spheres[0] = Sphere {1.0, Vec3{0.0, 1.0, 0.0}, &materials[0]}; */
-    render_ctx->spheres = spheres;
+    materials[3] = Material{Vec3{1, 1, 1}, 4, 0, 0, 0};
 
     Array<Quad> quads; quads.allocate(2);
     quads[0] = Quad {Vec2{100, 100}, Vec3{0.0, 0.0, 0.0}, &materials[2]};
-    quads[1] = Quad {Vec2{2, 2}, Vec3{0.0, 6.0, 0.0}, &materials[3]};
+    quads[1] = Quad {Vec2{4, 2}, Vec3{0.0, 6.0, 0.0}, &materials[3]};
     render_ctx->quads = quads;
 
-    Array<Array<Triangle>> meshes; meshes.allocate(2);
-    meshes[0] = load_mesh("data/box1.obj", 8, 36, &materials[0]);
-    meshes[1] = load_mesh("data/box2.obj", 8, 36, &materials[1]);
-    render_ctx->meshes = meshes;
+    Array<Triangle> bunny = load_mesh("data/bunny.obj", 34836, 69666, &materials[0]);
 
+    Array<BVH_Node*> bvhs; bvhs.allocate(1);
+    bvhs[0] = create_bvh_node();
+    build_BVH(bvhs[0], bunny.data, 0, bunny.size);
+    render_ctx->bvhs = bvhs;
+
+#if 1
     Array<Thread_Info> thread_infos = create_thread_infos(image, render_ctx);
     Array<pthread_t> threads = launch_threads(thread_infos);
 
     wait_for_threads(threads);
 
+    stbi_write_png("render.png", WIDTH, HEIGHT, 4, image, WIDTH * 4);
+
     destroy_threads(threads);
     destroy_thread_infos(thread_infos);
+#endif
 
-    stbi_write_png("render.png", WIDTH, HEIGHT, 4, image, WIDTH * 4);
+    destroy_BVHs(bvhs);
+    bunny.deallocate();
     materials.deallocate();
-    /* destroy_meshes(meshes); */
-    spheres.deallocate();
     quads.deallocate();
     MEM_FREE(render_ctx);
     MEM_FREE(image);

@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 
-Array<Triangle> load_mesh(const char* filename, int vertex_count, int index_count, Material* material)
+Array<Triangle> load_mesh(const char* filename, int vertex_count, int face_count, Material* material)
 {
     Array<Vec3> vertices; vertices.allocate(vertex_count);
-    Array<int> indices; indices.allocate(index_count);
+    Array<int> indices; indices.allocate(face_count * 3);
 
     FILE* fptr = fopen(filename, "r");
     while(true)
@@ -45,6 +45,8 @@ Array<Triangle> load_mesh(const char* filename, int vertex_count, int index_coun
         triangles.push_back(triangle);
     }
 
+    vertices.deallocate();
+    indices.deallocate();
     return triangles;
 }
 

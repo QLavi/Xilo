@@ -1,15 +1,8 @@
 bool scene_hit(Ray& ray, Vec2 t_range, Hit_Info& info, Render_Context* render_ctx)
 {
     bool hit_anything = false;
-    Array<Sphere> spheres = render_ctx->spheres;
     Array<Quad> quads = render_ctx->quads;
-    Array<Array<Triangle>> meshes = render_ctx->meshes;
-
-    for(int x = 0; x < spheres.size; x++)
-    {
-        bool hit = sphere_hit(ray, &spheres[x], t_range, info);
-        if(hit) { t_range.max = info.t; hit_anything = true; }
-    }
+    Array<BVH_Node*> bvhs = render_ctx->bvhs;
 
     for(int x = 0; x < quads.size; x++)
     {
@@ -17,13 +10,10 @@ bool scene_hit(Ray& ray, Vec2 t_range, Hit_Info& info, Render_Context* render_ct
         if(hit) { t_range.max = info.t; hit_anything = true; }
     }
 
-    for(int x = 0; x < meshes.size; x++)
+    for(int x = 0; x < bvhs.size; x++)
     {
-        for(int y = 0; y < meshes[x].size; y++)
-        {
-            bool hit = triangle_hit(ray, &meshes[x].data[y], t_range, info);
-            if(hit) { t_range.max = info.t; hit_anything = true; }
-        }
+        bool hit = bvh_node_hit(ray, bvhs[x], t_range, info);
+        if(hit) { t_range.max = info.t; hit_anything = true; }
     }
 
     return hit_anything;
@@ -45,7 +35,7 @@ Vec3 trace(Ray& ray, int bounces, Render_Context* render_ctx)
 
     Vec3 incoming = trace(new_ray, bounces +1, render_ctx);
     float cos_theta = dot(new_rd, info.normal);
-    Vec3 color = material->emissive_strength + cos_theta * 2.0 * incoming * material->color;
+    Vec3 color = material->emissive_strength + (cos_theta * 2.0 * incoming * material->color);
 
     return color;
 }
