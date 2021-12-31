@@ -21,7 +21,7 @@ bool scene_hit(Ray& ray, Vec2 t_range, Hit_Info& info, Render_Context* render_ct
 
 Vec3 trace(Ray& ray, int bounces, Render_Context* render_ctx)
 {
-    Vec3 bg_color = Vec3{0.5, 0.7, 1.0};
+    Vec3 bg_color = Vec3{0};
     if(bounces > MAX_LIGHT_BOUNCES) { return bg_color; }
 
     Hit_Info info;
@@ -29,19 +29,12 @@ Vec3 trace(Ray& ray, int bounces, Render_Context* render_ctx)
     bool hit = scene_hit(ray, t_range, info, render_ctx);
     if(!hit) { return bg_color; }
 
-#if 0
-    Material* material = info.material;
+    Vec3 new_rd = info.material->metallic ? 
+        reflect(ray.rd, info.normal) : unorm_sample_hemisphere(info.normal);
 
-    Vec3 new_rd = unorm_sample_hemisphere(info.normal);
     Ray new_ray = Ray{info.p, new_rd, 1 / new_rd};
-
-    Vec3 incoming = trace(new_ray, bounces +1, render_ctx);
-    float cos_theta = dot(new_rd, info.normal);
-    Vec3 color = material->emissive_strength + (cos_theta * 2.0 * incoming * material->color);
-#endif
-    Vec3 new_rd = unorm_sample_hemisphere(info.normal);
-    Ray new_ray = Ray{info.p, new_rd, 1 / new_rd};
-    Vec3 color = info.material->color * trace(new_ray, bounces +1, render_ctx);
+    Vec3 color = info.material->emissive_strength + 
+        info.material->color * trace(new_ray, bounces +1, render_ctx);
 
     return color;
 }

@@ -16,7 +16,7 @@ struct AABB { Vec3 min, max; };
 struct BVH_Node { Triangle* triangle; AABB bbox; BVH_Node *left, *right; };
 struct Render_Context { Array<Quad> quads; Array<BVH_Node*> bvhs; Camera camera; };
 
-const int WIDTH = 768;
+const int WIDTH = 1280;
 const int HEIGHT = 768;
 constexpr float ASPECT = WIDTH / float(HEIGHT);
 const int MAX_SAMPLES = 1024;
@@ -35,11 +35,11 @@ int main()
     uint32_t* image = MEM_ALLOC(uint32_t, WIDTH * HEIGHT);
     Render_Context* render_ctx = MEM_ALLOC(Render_Context, 1);
 
-    float Fov = 75.0F;
+    float Fov = 70.0F;
     float v_Fov = tan((Fov * PI / 180) / 2.0);
     float h_Fov = v_Fov * ASPECT;
 
-    Vec3 look_from = Vec3{0, 2, 10};
+    Vec3 look_from = Vec3{20, 15, 17};
     Vec3 look_at   = Vec3{0, 0, 0};
     Vec3 up        = Vec3{0, 1, 0};
 
@@ -49,22 +49,23 @@ int main()
     render_ctx->camera = Camera{look_from, cu, cv, cw, Vec2{h_Fov, v_Fov}};
 
     Array<Material> materials; materials.allocate(4);
-    materials[0] = Material{Vec3{0.5, 0.7, 1.0}, 0, 0, 0, 1};
-    materials[1] = Material{Vec3{0.7, 0.5, 1.0}, 0, 0, 0, 1};
-    materials[2] = Material{Vec3{0.7, 0.7, 0.7}, 0, 0, 0, 1};
-    materials[3] = Material{Vec3{1, 1, 1}, 4, 0, 0, 0};
+    materials[0] = Material{Vec3{0.800, 0.093, 0.148}, 0, 1, 0, 0}; // Ground Plane
+    materials[1] = Material{Vec3{0.050, 0.169, 0.646}, 0, 0, 0, 1}; // Dragon
+    materials[2] = Material{Vec3{0.216, 1.000, 0.463}, 0, 0, 0, 1}; // Wabbit
+    materials[3] = Material{Vec3{1, 1, 1}, 7, 0, 0, 0};
 
-    Array<Quad> quads; quads.allocate(1);
-    quads[0] = Quad {Vec2{100, 100}, Vec3{0.0, 0.0, 0.0}, &materials[2]};
-    /* quads[1] = Quad {Vec2{4, 2}, Vec3{0.0, 6.0, 0.0}, &materials[3]}; */
+    Array<Quad> quads; quads.allocate(2);
+    quads[0] = Quad {Vec2{500, 500}, Vec3{0.0, 0.0, 0.0}, &materials[0]};
+    quads[1] = Quad {Vec2{15, 15}, Vec3{0.0, 15.0, 0.0}, &materials[3]};
     render_ctx->quads = quads;
 
-    /* Array<Triangle> bunny = load_mesh("data/bunny.obj", 34835, 69666, &materials[1]); */
-    Array<Triangle> model = load_mesh("data/dragon.obj", 50000, 100000, &materials[1]);
+    Array<Triangle> bunny = load_mesh("data/bunny.obj", 34835, 69666, &materials[2]);
+    Array<Triangle> dragon = load_mesh("data/dragon.obj", 50000, 100000, &materials[1]);
 
-    Array<BVH_Node*> bvhs; bvhs.allocate(1);
-    bvhs[0] = create_bvh_node();
-    build_BVH(bvhs[0], model.data, 0, model.size);
+    Array<BVH_Node*> bvhs; bvhs.allocate(2);
+    for(int x = 0; x < bvhs.size; x++) { bvhs[x] = create_bvh_node(); }
+    build_BVH(bvhs[0], bunny.data, 0, bunny.size);
+    build_BVH(bvhs[1], dragon.data, 0, dragon.size);
     render_ctx->bvhs = bvhs;
 
 #if 1
@@ -80,7 +81,8 @@ int main()
 #endif
 
     destroy_BVHs(bvhs);
-    model.deallocate();
+    bunny.deallocate();
+    dragon.deallocate();
     materials.deallocate();
     quads.deallocate();
     MEM_FREE(render_ctx);
