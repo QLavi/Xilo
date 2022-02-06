@@ -19,6 +19,10 @@ What I have to implement in Xilo
 - Next Event Estimation
 - Depth of Field For Camera
 
+### Images Rendered Using Xilo
+![Cornell Box](/gallery/im1.png)
+![Standford Dragon & Bunny](/gallery/im2.png)
+
 Resources that helped me
 - [_Ray Tracing in One Weekend_](https://raytracing.github.io/books/RayTracingInOneWeekend.html)
 - [_Atrix256's Path Tracing Blog_](https://blog.demofox.org/2016/09/21/path-tracing-getting-started-with-diffuse-and-emissive/)
